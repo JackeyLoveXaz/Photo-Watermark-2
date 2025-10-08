@@ -1,5 +1,6 @@
 package com.photowatermark;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -12,7 +13,20 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -33,7 +47,10 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +62,7 @@ import java.util.prefs.Preferences;
 public class MainController implements Initializable {
     // 界面元素
     @FXML
-    private VBox imageListContainer;
+    private FlowPane imageListContainer;
     @FXML
     private ImageView previewImageView;
     @FXML
@@ -563,9 +580,9 @@ public class MainController implements Initializable {
                 // 设置字体
                 String fontName = fontChoiceBox.getValue();
                 int fontSize = (int) fontSizeSlider.getValue();
-                int fontStyle = Font.PLAIN;
-                if (boldCheckBox.isSelected()) fontStyle |= Font.BOLD;
-                if (italicCheckBox.isSelected()) fontStyle |= Font.ITALIC;
+                int fontStyle = java.awt.Font.PLAIN;
+                if (boldCheckBox.isSelected()) fontStyle |= java.awt.Font.BOLD;
+                if (italicCheckBox.isSelected()) fontStyle |= java.awt.Font.ITALIC;
                 
                 g2d.setFont(new java.awt.Font(fontName, fontStyle, fontSize));
                 
@@ -782,21 +799,26 @@ public class MainController implements Initializable {
                 }
                 
                 // 导出完成后显示结果
+                final File finalOutputDirectory = outputDirectory; // 创建final局部变量持有outputDirectory引用
+                final Dialog<Void> finalDialog = dialog; // 创建final局部变量持有dialog引用
+                final int finalSuccessCount = successCount; // 创建final局部变量持有successCount引用
+                final List<String> finalFailedFiles = new ArrayList<>(failedFiles); // 创建final局部变量持有failedFiles的副本
+                
                 Platform.runLater(() -> {
-                    dialog.close();
+                    finalDialog.close();
                     
                     StringBuilder message = new StringBuilder();
                     message.append("导出完成！\n");
-                    message.append("成功导出: " + successCount + " 张图片\n");
+                    message.append("成功导出: " + finalSuccessCount + " 张图片\n");
                     
-                    if (!failedFiles.isEmpty()) {
-                        message.append("导出失败: " + failedFiles.size() + " 张图片\n");
-                        for (String failedFile : failedFiles) {
+                    if (!finalFailedFiles.isEmpty()) {
+                        message.append("导出失败: " + finalFailedFiles.size() + " 张图片\n");
+                        for (String failedFile : finalFailedFiles) {
                             message.append("  - " + failedFile + "\n");
                         }
                     }
                     
-                    message.append("\n输出文件夹: " + outputDirectory.getAbsolutePath());
+                    message.append("\n输出文件夹: " + finalOutputDirectory.getAbsolutePath());
                     
                     showAlert(Alert.AlertType.INFORMATION, "导出结果", message.toString());
                 });
@@ -1063,8 +1085,16 @@ public class MainController implements Initializable {
             boldCheckBox.setSelected(preferences.getBoolean("bold", false));
             italicCheckBox.setSelected(preferences.getBoolean("italic", false));
             
-            String colorStr = preferences.get("color", "#000000");
-            colorPicker.setValue(Color.web(colorStr));
+            // 只在colorPicker已经初始化时才尝试设置值
+            if (colorPicker != null) {
+                String colorStr = preferences.get("color", "#000000");
+                try {
+                    colorPicker.setValue(Color.web(colorStr));
+                } catch (Exception e) {
+                    // 如果颜色格式不正确，使用默认颜色
+                    colorPicker.setValue(Color.web("#000000"));
+                }
+            }
             
             String watermarkTypeStr = preferences.get("watermarkType", "TEXT");
             currentWatermarkType = WatermarkType.valueOf(watermarkTypeStr);
@@ -1145,8 +1175,8 @@ public class MainController implements Initializable {
         }
     }
 
-    // 内部类：水印模板
-    private class WatermarkTemplate {
+    // 静态内部类：水印模板
+    private static class WatermarkTemplate {
         private String name;
         private WatermarkType watermarkType;
         private String text;
@@ -1242,5 +1272,11 @@ public class MainController implements Initializable {
             }
             return null;
         }
+    }
+    
+    @FXML
+    private void handleExit(ActionEvent event) {
+        saveSettings();
+        System.exit(0);
     }
 }
