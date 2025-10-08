@@ -34,7 +34,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -590,7 +589,7 @@ public class MainController implements Initializable {
                 g2d.setFont(new java.awt.Font(fontName, fontStyle, fontSize));
                 
                 // 设置颜色
-                Color color = colorPicker.getValue();
+                javafx.scene.paint.Color color = colorPicker.getValue();
                 g2d.setColor(new java.awt.Color(
                         (float) color.getRed(), 
                         (float) color.getGreen(), 
@@ -1110,10 +1109,10 @@ public class MainController implements Initializable {
             if (colorPicker != null) {
                 String colorStr = preferences.get("color", "#000000");
                 try {
-                    colorPicker.setValue(Color.web(colorStr));
+                    colorPicker.setValue(javafx.scene.paint.Color.web(colorStr));
                 } catch (Exception e) {
                     // 如果颜色格式不正确，使用默认颜色
-                    colorPicker.setValue(Color.web("#000000"));
+                    colorPicker.setValue(javafx.scene.paint.Color.web("#000000"));
                 }
             }
             
@@ -1205,7 +1204,7 @@ public class MainController implements Initializable {
         private double fontSize;
         private boolean bold;
         private boolean italic;
-        private Color color;
+        private javafx.scene.paint.Color color;
         private double opacity;
         private double rotation;
         private String watermarkImagePath;
@@ -1233,8 +1232,8 @@ public class MainController implements Initializable {
         public boolean isItalic() { return italic; }
         public void setItalic(boolean italic) { this.italic = italic; }
         
-        public Color getColor() { return color; }
-        public void setColor(Color color) { this.color = color; }
+        public javafx.scene.paint.Color getColor() { return color; }
+        public void setColor(javafx.scene.paint.Color color) { this.color = color; }
         
         public double getOpacity() { return opacity; }
         public void setOpacity(double opacity) { this.opacity = opacity; }
@@ -1258,7 +1257,7 @@ public class MainController implements Initializable {
             sb.append(fontSize).append("|");
             sb.append(bold).append("|");
             sb.append(italic).append("|");
-            sb.append(color.toString()).append("|");
+            sb.append(((javafx.scene.paint.Color)color).toString()).append("|");
             sb.append(opacity).append("|");
             sb.append(rotation).append("|");
             sb.append(watermarkImageScale).append("|");
@@ -1279,7 +1278,7 @@ public class MainController implements Initializable {
                     template.setFontSize(Double.parseDouble(parts[4]));
                     template.setBold(Boolean.parseBoolean(parts[5]));
                     template.setItalic(Boolean.parseBoolean(parts[6]));
-                    template.setColor(Color.web(parts[7]));
+                    template.setColor(javafx.scene.paint.Color.web(parts[7]));
                     template.setOpacity(Double.parseDouble(parts[8]));
                     template.setRotation(Double.parseDouble(parts[9]));
                     template.setWatermarkImageScale(Double.parseDouble(parts[10]));
