@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.photowatermark.MainController">
+    <top>
+        <MenuBar>
+            <Menu text="文件">
+                <MenuItem text="导入图片..." onAction="#handleImportImages"/>
+                <MenuItem text="导入文件夹..." onAction="#handleImportFolder"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="导出图片" onAction="#handleExportImages"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="退出" onAction="System.exit(0);"/>
+            </Menu>
+            <Menu text="编辑">
+                <MenuItem text="保存设置" onAction="#saveSettings"/>
+            </Menu>
+            <Menu text="帮助">
+                <MenuItem text="关于"/>
+            </Menu>
+        </MenuBar>
+    </top>
+    
+    <center>
+        <SplitPane orientation="HORIZONTAL" dividerPositions="0.2, 0.8">
+            <!-- 左侧：图片列表 -->
+            <VBox padding="10" spacing="10" style="-fx-border-color: #cccccc; -fx-border-width: 0 1 0 0;">
+                <HBox spacing="10">
+                    <Button text="导入图片" onAction="#handleImportImages"/>
+                    <Button text="导入文件夹" onAction="#handleImportFolder"/>
+                </HBox>
+                <Label text="已导入图片：" font="14px Arial"/>
+                <ScrollPane fitToWidth="true" prefHeight="600">
+                    <FlowPane fx:id="imageListContainer" hgap="10" vgap="10"/>
+                </ScrollPane>
+            </VBox>
+            
+            <!-- 中间：预览区域 -->
+            <VBox padding="10" spacing="10" style="-fx-border-color: #cccccc; -fx-border-width: 0 1 0 0;">
+                <Label text="预览：" font="14px Arial"/>
+                <ScrollPane fitToWidth="true" fitToHeight="true">
+                    <ImageView fx:id="previewImageView" preserveRatio="true"/>
+                </ScrollPane>
+            </VBox>
+            
+            <!-- 右侧：控制面板 -->
+            <TabPane tabClosingPolicy="UNAVAILABLE">
+                <!-- 水印设置标签页 -->
+                <Tab text="水印设置">
+                    <VBox padding="10" spacing="10" fillWidth="true">
+                        <!-- 水印类型选择 -->
+                        <HBox spacing="10">
+                            <RadioButton fx:id="textWatermarkRadio" text="文本水印" selected="true"/>
+                            <RadioButton fx:id="imageWatermarkRadio" text="图片水印"/>
+                        </HBox>
+                        
+                        <!-- 文本水印设置 -->
+                        <VBox fx:id="textWatermarkControls" spacing="5">
+                            <HBox spacing="5">
+                                <Label text="水印文本：" prefWidth="80"/>
+                                <TextField fx:id="watermarkText" promptText="请输入水印文本" text="水印" prefWidth="200"/>
+                            </HBox>
+                            
+                            <HBox spacing="5">
+                                <Label text="字体：" prefWidth="80"/>
+                                <ChoiceBox fx:id="fontChoiceBox" prefWidth="150"/>
+                            </HBox>
+                            
+                            <HBox spacing="5">
+                                <Label text="字体大小：" prefWidth="80"/>
+                                <Slider fx:id="fontSizeSlider" min="8" max="72" value="24" prefWidth="150"/>
+                                <Label fx:id="fontSizeLabel" text="24" prefWidth="30"/>
+                            </HBox>
+                            
+                            <HBox spacing="10">
+                                <Label text="样式：" prefWidth="80"/>
+                                <CheckBox fx:id="boldCheckBox" text="粗体"/>
+                                <CheckBox fx:id="italicCheckBox" text="斜体"/>
+                            </HBox>
+                            
+                            <HBox spacing="5">
+                                <Label text="颜色：" prefWidth="80"/>
+                                <ColorPicker fx:id="colorPicker" value="#000000"/>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- 图片水印设置 -->
+                        <VBox fx:id="imageWatermarkControls" spacing="5" disable="true">
+                <Button fx:id="selectWatermarkImageBtn" text="选择水印图片" onAction="#handleSelectWatermarkImage"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="水印大小: " />
+                    <Slider fx:id="watermarkImageSizeSlider" min="10" max="200" value="25" prefWidth="150" />
+                    <Label fx:id="watermarkImageSizeLabel" text="25%" minWidth="40" alignment="CENTER_RIGHT" />
+                </HBox>
+            </VBox>
+                        
+                        <!-- 通用水印设置 -->
+                        <VBox spacing="5">
+                            <HBox spacing="5">
+                                <Label text="透明度：" prefWidth="80"/>
+                                <Slider fx:id="opacitySlider" min="0" max="100" value="50" prefWidth="150"/>
+                                <Label fx:id="opacityLabel" text="50%" prefWidth="40"/>
+                            </HBox>
+                            
+                            <HBox spacing="5">
+                                <Label text="旋转：" prefWidth="80"/>
+                                <Slider fx:id="rotationSlider" min="0" max="360" value="0" prefWidth="150"/>
+                                <Label fx:id="rotationLabel" text="0°" prefWidth="40"/>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- 位置预设 -->
+                        <VBox spacing="5">
+                            <Label text="位置预设："/>
+                            <VBox fx:id="positionPresets"/>
+                        </VBox>
+                    </VBox>
+                </Tab>
+                
+                <!-- 导出设置标签页 -->
+                <Tab text="导出设置">
+                    <VBox padding="10" spacing="10" fillWidth="true">
+                        <HBox spacing="5">
+                            <Label text="输出文件夹：" prefWidth="100"/>
+                            <Button fx:id="selectOutputDirBtn" text="浏览..." onAction="#handleSelectOutputDir" prefWidth="80"/>
+                        </HBox>
+                        <Label fx:id="outputDirLabel" text="未选择文件夹" wrapText="true" style="-fx-text-fill: #666666;"/>
+                        
+                        <Separator/>
+                        
+                        <HBox spacing="5">
+                            <Label text="前缀：" prefWidth="80"/>
+                            <TextField fx:id="exportPrefix" promptText="输入前缀" text="wm_" prefWidth="150"/>
+                        </HBox>
+                        
+                        <HBox spacing="5">
+                            <Label text="后缀：" prefWidth="80"/>
+                            <TextField fx:id="exportSuffix" promptText="输入后缀" text="_watermarked" prefWidth="150"/>
+                        </HBox>
+                        
+                        <CheckBox fx:id="keepOriginalNameCheck" text="保留原文件名" selected="true"/>
+                        
+                        <HBox spacing="5">
+                            <Label text="输出格式：" prefWidth="80"/>
+                            <ChoiceBox fx:id="exportFormatChoice"/>
+                        </HBox>
+                        
+                        <HBox spacing="5">
+                            <Label text="质量：" prefWidth="80"/>
+                            <Slider fx:id="qualitySlider" min="0" max="100" value="90" prefWidth="150"/>
+                            <Label fx:id="qualityLabel" text="90%" prefWidth="40"/>
+                        </HBox>
+                        
+                        <Button text="导出图片" onAction="#handleExportImages" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" prefHeight="30"/>
+                    </VBox>
+                </Tab>
+                
+                <!-- 模板管理标签页 -->
+                <Tab text="模板管理">
+                    <VBox padding="10" spacing="10" fillWidth="true">
+                        <HBox spacing="5">
+                            <TextField fx:id="templateNameField" promptText="输入模板名称" prefWidth="150"/>
+                            <Button text="保存模板" onAction="#handleSaveTemplate"/>
+                        </HBox>
+                        
+                        <ListView fx:id="templateListView" prefHeight="200"/>
+                        
+                        <HBox spacing="10">
+                            <Button text="加载模板" onAction="#handleLoadTemplate"/>
+                            <Button text="删除模板" onAction="#handleDeleteTemplate"/>
+                        </HBox>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </SplitPane>
+    </center>
+    
+    <bottom>
+        <HBox padding="10" alignment="CENTER" style="-fx-background-color: #f0f0f0;">
+            <Label text="图片水印工具 - 大语言模型辅助软件工程作业2"/>
+        </HBox>
+    </bottom>
+</BorderPane>
