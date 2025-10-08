@@ -378,15 +378,37 @@ public class MainController implements Initializable {
 
     private void enableDragAndDrop() {
         // 为图片列表容器添加拖拽功能
-        imageListContainer.setOnDragOver(event -> {
-            if (event.getGestureSource() != imageListContainer &&
+        setupDragAndDrop(imageListContainer);
+        
+        // 为图片列表的滚动容器添加拖拽功能，确保在没有图片时也能拖拽导入
+        if (imageListContainer.getParent() instanceof ScrollPane) {
+            ScrollPane scrollPane = (ScrollPane) imageListContainer.getParent();
+            setupDragAndDrop(scrollPane);
+        }
+        
+        // 为最外层的容器添加拖拽功能，扩大拖拽区域
+        if (imageListContainer.getScene() != null) {
+            // 找到左侧的VBox容器（包含按钮和图片列表）
+            Node current = imageListContainer;
+            while (current != null && !(current instanceof VBox && current.getChildren().size() > 1)) {
+                current = current.getParent();
+            }
+            if (current != null) {
+                setupDragAndDrop(current);
+            }
+        }
+    }
+    
+    private void setupDragAndDrop(Node node) {
+        node.setOnDragOver(event -> {
+            if (event.getGestureSource() != node &&
                     event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
             event.consume();
         });
         
-        imageListContainer.setOnDragDropped(event -> {
+        node.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             boolean success = false;
             
