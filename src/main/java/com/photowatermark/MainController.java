@@ -13,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -381,27 +382,19 @@ public class MainController implements Initializable {
         // 为图片列表容器添加拖拽功能
         setupDragAndDrop(imageListContainer);
         
-        // 为图片列表的滚动容器添加拖拽功能，确保在没有图片时也能拖拽导入
+        // 为图片列表的滚动容器添加拖拽功能
         if (imageListContainer.getParent() instanceof ScrollPane) {
             ScrollPane scrollPane = (ScrollPane) imageListContainer.getParent();
             setupDragAndDrop(scrollPane);
         }
         
-        // 为最外层的容器添加拖拽功能，扩大拖拽区域
-        if (imageListContainer.getScene() != null) {
-            // 找到左侧的VBox容器（包含按钮和图片列表）
-            Node current = imageListContainer;
-            // 向上查找最多5层，避免无限循环
-            int maxDepth = 5;
-            while (current != null && maxDepth > 0) {
-                if (current instanceof VBox) {
-                    setupDragAndDrop(current);
-                    break;
-                }
-                current = current.getParent();
-                maxDepth--;
+        // 将拖拽功能添加到应用的根容器上，支持在应用的任何UI范围内拖拽导入图片
+        Platform.runLater(() -> {
+            if (imageListContainer.getScene() != null && imageListContainer.getScene().getRoot() != null) {
+                Parent root = imageListContainer.getScene().getRoot();
+                setupDragAndDrop(root);
             }
-        }
+        });
     }
     
     private void setupDragAndDrop(Node node) {
