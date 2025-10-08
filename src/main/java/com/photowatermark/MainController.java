@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -390,11 +391,15 @@ public class MainController implements Initializable {
         if (imageListContainer.getScene() != null) {
             // 找到左侧的VBox容器（包含按钮和图片列表）
             Node current = imageListContainer;
-            while (current != null && !(current instanceof VBox && current.getChildren().size() > 1)) {
+            // 向上查找最多5层，避免无限循环
+            int maxDepth = 5;
+            while (current != null && maxDepth > 0) {
+                if (current instanceof VBox) {
+                    setupDragAndDrop(current);
+                    break;
+                }
                 current = current.getParent();
-            }
-            if (current != null) {
-                setupDragAndDrop(current);
+                maxDepth--;
             }
         }
     }
