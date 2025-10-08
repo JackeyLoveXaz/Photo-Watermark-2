@@ -741,13 +741,8 @@ public class MainController implements Initializable {
                         String originalName = originalFile.getName();
                         String baseName = originalName.substring(0, originalName.lastIndexOf('.'));
                         
-                        // 构建新文件名
-                        String newFileName;
-                        if (keepOriginal) {
-                            newFileName = baseName + suffix + "." + format.toLowerCase();
-                        } else {
-                            newFileName = prefix + baseName + suffix + "." + format.toLowerCase();
-                        }
+                        // 使用generateOutputFileName方法生成新文件名
+                        String newFileName = generateOutputFileName(originalFile);
                         
                         // 创建输出文件
                         File outputFile = new File(outputDirectory, newFileName);
