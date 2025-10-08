@@ -47,7 +47,68 @@
 ## 系统要求
 
 - Java Development Kit (JDK) 17 或更高版本
-- Maven（用于构建项目）
+- Maven 3.6.0 或更高版本（用于构建项目）
+
+## 安装与运行指南
+
+### 方法一：使用批处理脚本（Windows系统）
+
+1. 确保已安装JDK 17和Maven，并已配置环境变量
+2. 下载项目源码
+3. 双击运行 `run_app.bat` 文件
+4. 脚本会自动构建项目并启动应用程序
+
+### 方法二：使用Maven命令行（所有操作系统）
+
+1. 确保已安装JDK 17和Maven，并已配置环境变量
+2. 打开命令行终端，导航到项目根目录
+3. 执行以下命令构建并运行项目：
+   ```
+   mvn clean javafx:run
+   ```
+
+### 方法三：手动构建并运行（所有操作系统）
+
+1. 确保已安装JDK 17和Maven，并已配置环境变量
+2. 打开命令行终端，导航到项目根目录
+3. 执行以下命令构建项目：
+   ```
+   mvn clean package
+   ```
+4. 构建成功后，执行以下命令运行应用程序：
+   ```
+   java -jar target/Photo-Watermark-2-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+
+## 常见问题解决
+
+1. **无法找到JDK或Maven**
+   - 确保正确安装了JDK 17和Maven
+   - 检查系统环境变量是否包含JDK和Maven的bin目录
+
+2. **构建失败**
+   - 尝试更新Maven依赖：`mvn clean install -U`
+   - 检查网络连接是否正常
+
+3. **运行时异常**
+   - 确保使用的是JDK 17或更高版本
+   - 检查JavaFX依赖是否正确加载
+
+## 开发环境配置
+
+如果您想参与项目开发，可以使用任何支持Java的IDE：
+
+1. **IntelliJ IDEA**
+   - 导入项目为Maven项目
+   - 确保项目SDK设置为JDK 17
+
+2. **Eclipse**
+   - 导入项目为现有Maven项目
+   - 配置JRE为JDK 17
+
+3. **NetBeans**
+   - 打开项目，选择项目根目录
+   - 确保项目使用JDK 17
 - Windows 或 MacOS 操作系统
 
 ## 安装和运行
