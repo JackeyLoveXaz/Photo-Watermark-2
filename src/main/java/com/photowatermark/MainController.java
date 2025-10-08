@@ -48,7 +48,9 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
@@ -56,6 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -765,15 +768,38 @@ public class MainController implements Initializable {
                         if ("PNG".equals(format)) {
                             ImageIO.write(watermarkedImage, "PNG", outputFile);
                         } else if ("JPEG".equals(format)) {
+                            // 对于JPEG格式，确保图片不包含alpha通道
+                            BufferedImage jpegImage = watermarkedImage;
+                            if (watermarkedImage.getAlphaRaster() != null) {
+                                // 创建一个不包含alpha通道的新BufferedImage
+                                jpegImage = new BufferedImage(
+                                        watermarkedImage.getWidth(),
+                                        watermarkedImage.getHeight(),
+                                        BufferedImage.TYPE_INT_RGB
+                                );
+                                Graphics g = jpegImage.createGraphics();
+                                // 填充白色背景
+                                g.setColor(Color.WHITE);
+                                g.fillRect(0, 0, watermarkedImage.getWidth(), watermarkedImage.getHeight());
+                                // 绘制原始图片
+                                g.drawImage(watermarkedImage, 0, 0, null);
+                                g.dispose();
+                            }
+                             
                             // 对于JPEG格式，设置质量
-                            ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+                            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
+                            if (!writers.hasNext()) {
+                                throw new IllegalStateException("没有找到JPEG图像编写器");
+                            }
+                             
+                            ImageWriter writer = writers.next();
                             ImageWriteParam param = writer.getDefaultWriteParam();
                             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                             param.setCompressionQuality(quality);
-                            
+                             
                             try (FileImageOutputStream output = new FileImageOutputStream(outputFile)) {
                                 writer.setOutput(output);
-                                IIOImage image = new IIOImage(watermarkedImage, null, null);
+                                IIOImage image = new IIOImage(jpegImage, null, null);
                                 writer.write(null, image, param);
                                 writer.dispose();
                             }
