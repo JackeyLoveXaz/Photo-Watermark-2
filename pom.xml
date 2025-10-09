@@ -12,6 +12,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 默认打包类型，可以通过命令行覆盖 -->
+        <packaging.type>exe</packaging.type>
     </properties>
 
     <dependencies>
@@ -91,7 +93,57 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <!-- 用于创建平台特定的安装程序 (Windows EXE, macOS DMG) -->
+            <!-- 注意：这个插件不会在默认构建中执行，需要使用特定的profile -->
         </plugins>
     </build>
-
+    
+    <!-- 打包配置文件，用于生成平台特定的安装程序 -->
+    <profiles>
+        <profile>
+            <id>create-installer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>create-native-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>jpackage</executable>
+                                    <arguments>
+                                        <argument>--name</argument>
+                                        <argument>PhotoWatermark</argument>
+                                        <argument>--input</argument>
+                                        <argument>${project.build.directory}</argument>
+                                        <argument>--main-jar</argument>
+                                        <argument>${project.build.finalName}-jar-with-dependencies.jar</argument>
+                                        <argument>--main-class</argument>
+                                        <argument>com.photowatermark.Main</argument>
+                                        <argument>--type</argument>
+                                        <argument>${packaging.type}</argument>
+                                        <argument>--output</argument>
+                                        <argument>${project.build.directory}/installer</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>--enable-preview</argument>
+                                        <argument>--description</argument>
+                                        <argument>图片水印工具 - 大语言模型辅助软件工程作业2</argument>
+                                        <argument>--vendor</argument>
+                                        <argument>PhotoWatermark Team</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

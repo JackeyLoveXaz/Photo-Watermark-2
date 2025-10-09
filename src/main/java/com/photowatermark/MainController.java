@@ -180,6 +180,10 @@ public class MainController implements Initializable {
         loadSettings();
         loadTemplates();
 
+        // 确保根据当前水印类型正确启用控件
+        enableTextWatermarkControls(currentWatermarkType == WatermarkType.TEXT);
+        enableImageWatermarkControls(currentWatermarkType == WatermarkType.IMAGE);
+
         // 启用拖拽功能
         enableDragAndDrop();
     }
@@ -247,6 +251,27 @@ public class MainController implements Initializable {
     }
 
     private void addEventListeners() {
+        // 水印类型切换
+        textWatermarkRadio.setOnAction(event -> {
+            if (textWatermarkRadio.isSelected()) {
+                currentWatermarkType = WatermarkType.TEXT;
+                enableTextWatermarkControls(true);
+                enableImageWatermarkControls(false);
+                updatePreview();
+                saveSettings();
+            }
+        });
+        
+        imageWatermarkRadio.setOnAction(event -> {
+            if (imageWatermarkRadio.isSelected()) {
+                currentWatermarkType = WatermarkType.IMAGE;
+                enableTextWatermarkControls(false);
+                enableImageWatermarkControls(true);
+                updatePreview();
+                saveSettings();
+            }
+        });
+        
         // 水印文本变化
         watermarkText.textProperty().addListener((observable, oldValue, newValue) -> updatePreview());
         
